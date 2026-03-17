@@ -1,0 +1,15 @@
+@import "tailwindcss";
+
+@theme {
+  --color-slate-50: #f0f4f8;
+  --color-slate-100: #d9e2ec;
+  --color-slate-200: #bcccdc;
+  --color-slate-300: #9fb3c8;
+  --color-slate-400: #829ab1;
+  --color-slate-500: #627d98;
+  --color-slate-600: #486581;
+  --color-slate-700: #2a4365;
+  --color-slate-800: #1a365d;
+  --color-slate-900: #0f2a4a;
+  --color-slate-950: #061626;
+}
