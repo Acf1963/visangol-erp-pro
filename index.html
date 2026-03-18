@@ -5,11 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#0f172a" />
     <link rel="manifest" href="/manifest.json" />
+    <link id="favicon" rel="icon" href="/lg_vsngl_00.png" />
     <title>Visangol ERP</title>
+    <script>
+      // Function to update favicon from localStorage or default
+      function updateFavicon() {
+        const savedLogo = localStorage.getItem('erp_logo');
+        const favicon = document.getElementById('favicon');
+        if (favicon) {
+          favicon.href = savedLogo || '/lg_vsngl_00.png';
+        }
+      }
+      // Initial check
+      updateFavicon();
+      // Listen for changes (in case it's updated in another tab or via script)
+      window.addEventListener('storage', (e) => {
+        if (e.key === 'erp_logo') {
+          updateFavicon();
+        }
+      });
+    </script>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-

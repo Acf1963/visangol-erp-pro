@@ -7,8 +7,8 @@ import {
   Upload,
   Download,
 } from 'lucide-react';
-import { useAppStore } from '../store';
-import { cn } from '../utils/cn';
+import { useAppStore } from '@/store';
+import { cn } from '@/utils/cn';
 
 export const Header: React.FC = () => {
   const { activeTab, setActiveTab } = useAppStore();
@@ -19,7 +19,9 @@ export const Header: React.FC = () => {
 
   useEffect(() => {
     const savedLogo = localStorage.getItem('visangol_logo');
-    if (savedLogo) setCustomLogo(savedLogo);
+    if (savedLogo) {
+      setCustomLogo(savedLogo);
+    }
 
     const handleBeforeInstallPrompt = (e: any) => {
       e.preventDefault();
@@ -28,35 +30,51 @@ export const Header: React.FC = () => {
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
   }, []);
 
   const handleInstallClick = async () => {
     if (!deferredPrompt) return;
     deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === 'accepted') setShowInstallBtn(false);
+    if (outcome === 'accepted') {
+      setShowInstallBtn(false);
+    }
     setDeferredPrompt(null);
+  };
+
+  const updateFavicon = (logoUrl: string | null) => {
+    const favicon = document.getElementById('favicon') as HTMLLinkElement;
+    if (favicon) {
+      favicon.href = logoUrl || '/lg_vsngl_00.png';
+    }
   };
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const base64String = reader.result as string;
-      setCustomLogo(base64String);
-      localStorage.setItem('visangol_logo', base64String);
-    };
-    reader.readAsDataURL(file);
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        setCustomLogo(base64String);
+        localStorage.setItem('visangol_logo', base64String);
+        updateFavicon(base64String);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleRemoveLogo = (e: React.MouseEvent) => {
     e.stopPropagation();
     setCustomLogo(null);
     localStorage.removeItem('visangol_logo');
-    if (fileInputRef.current) fileInputRef.current.value = '';
+    updateFavicon(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   const tabs = [
@@ -68,12 +86,11 @@ export const Header: React.FC = () => {
 
   return (
     <nav className="fixed top-0 left-0 right-0 bg-slate-900 border-b border-slate-800 px-6 py-4 z-50 flex justify-between items-center">
-      {/* LOGO */}
       <div className="flex items-center gap-6">
         <div
           className="flex items-center gap-3 cursor-pointer group"
-          onClick={() => fileInputRef.current?.click()}
-          title="Clique para alterar o logotipo"
+          onClick={() => !customLogo && fileInputRef.current?.click()}
+          title={!customLogo ? 'Clique para adicionar o logotipo' : ''}
         >
           <input
             type="file"
@@ -83,14 +100,11 @@ export const Header: React.FC = () => {
             onChange={handleLogoUpload}
           />
 
-          {/* Se existir logo personalizado → mostra-o */}
           {customLogo ? (
             <div className="bg-white px-3 py-1.5 rounded-xl flex items-center justify-center h-10 shadow-sm relative overflow-hidden group/logo">
-              <img src={customLogo} alt="Visangol" className="h-full object-contain" />
-
-              {/* Overlay para remover */}
+              <img src={customLogo} alt="Logo" className="h-full object-contain" />
               <div
-                className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover/logo:opacity-100 transition-opacity"
+                className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover/logo:opacity-100 transition-opacity cursor-pointer"
                 onClick={handleRemoveLogo}
               >
                 <span className="text-white text-[10px] uppercase font-bold tracking-widest">
@@ -99,19 +113,35 @@ export const Header: React.FC = () => {
               </div>
             </div>
           ) : (
-            /* Logo padrão da pasta public */
-            <div className="bg-white px-3 py-1.5 rounded-xl flex items-center justify-center h-10 shadow-sm cursor-pointer">
-              <img src="/lg_vsngl_00.png" alt="Visangol Logo" className="h-full object-contain" />
+            <div className="flex items-center gap-3">
+              <div className="h-10 bg-white px-3 py-1.5 rounded-xl flex items-center justify-center shadow-sm border border-slate-700/50 hover:border-orange-500/50 transition-all">
+                <img
+                  src="/lg_vsngl_00.png"
+                  alt="Logo"
+                  className="h-full object-contain"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = 'none';
+                    const parent = (e.target as HTMLElement).parentElement;
+                    if (parent && !parent.querySelector('.fallback-v')) {
+                      const placeholder = document.createElement('div');
+                      placeholder.className =
+                        'w-8 h-8 bg-[#004b93] rounded-lg flex items-center justify-center fallback-v';
+                      placeholder.innerHTML = '<span class="text-white font-bold italic">V</span>';
+                      parent.appendChild(placeholder);
+                    }
+                  }}
+                />
+              </div>
+              {/* Logo text removed */}
             </div>
           )}
         </div>
 
-        {/* Botão de instalar PWA */}
         {showInstallBtn && (
           <button
             onClick={handleInstallClick}
             className="hidden lg:flex items-center gap-2 bg-orange-500 hover:bg-orange-400 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-lg shadow-orange-500/20 active:scale-95 animate-pulse"
-            title="Instalar Visangol ERP no Pop!_OS / Linux"
+            title="Instalar ERP no Pop!_OS / Linux"
           >
             <Download className="w-4 h-4" />
             <span>INSTALAR NO POP!_OS</span>
@@ -119,7 +149,6 @@ export const Header: React.FC = () => {
         )}
       </div>
 
-      {/* TABS */}
       <div className="flex gap-4 md:gap-8">
         {tabs.map((tab) => {
           const Icon = tab.icon;

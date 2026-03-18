@@ -1,13 +1,13 @@
 import React from 'react';
 import { AlertTriangle } from 'lucide-react';
-import { Product } from '../types';
+import { Product } from '@/types';
 
 interface StockAlertProps {
   products: Product[];
 }
 
 export const StockAlert: React.FC<StockAlertProps> = ({ products }) => {
-  const criticalProducts = products.filter(p => p.stock_current < (p.min_stock_alert || 5));
+  const criticalProducts = products.filter((p) => p.stock_current < (p.min_stock_alert || 5));
 
   if (criticalProducts.length === 0) return null;
 
@@ -17,7 +17,9 @@ export const StockAlert: React.FC<StockAlertProps> = ({ products }) => {
         <AlertTriangle className="w-6 h-6" />
         <div>
           <p className="font-bold text-sm">Alerta de Stock Crítico!</p>
-          <p className="text-xs opacity-90">{criticalProducts.length} itens abaixo de 5 unidades.</p>
+          <p className="text-xs opacity-90">
+            {criticalProducts.length} itens abaixo de 5 unidades.
+          </p>
         </div>
       </div>
     </div>

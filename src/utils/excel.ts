@@ -1,5 +1,5 @@
 import * as XLSX from 'xlsx';
-import { Product } from '../types';
+import { Product } from '@/types';
 
 export const exportInventoryToExcel = (products: Product[]) => {
   const data = products.map((p) => ({
@@ -8,7 +8,7 @@ export const exportInventoryToExcel = (products: Product[]) => {
     Categoria: p.category,
     Marca: p.brand,
     'Stock Atual': p.stock_current,
-    'Stock Físico (Preencher)': '',
+    'Stock Físico (Preencher)': '', // Blank column for physical inventory
     Unidade: p.unit,
     'PVP 1': p.prices?.pvp1 || 0,
     'PVP 2': p.prices?.pvp2 || 0,
@@ -19,20 +19,24 @@ export const exportInventoryToExcel = (products: Product[]) => {
   const ws = XLSX.utils.json_to_sheet(data);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Inventário Físico');
-  ws['!cols'] = [
-    { wch: 15 },
-    { wch: 40 },
-    { wch: 20 },
-    { wch: 15 },
-    { wch: 15 },
-    { wch: 25 },
-    { wch: 10 },
-    { wch: 15 },
-    { wch: 15 },
-    { wch: 15 },
-    { wch: 20 },
+
+  // Auto-size columns
+  const colWidths = [
+    { wch: 15 }, // SKU
+    { wch: 40 }, // Nome
+    { wch: 20 }, // Categoria
+    { wch: 15 }, // Marca
+    { wch: 15 }, // Stock Atual
+    { wch: 25 }, // Stock Físico
+    { wch: 10 }, // Unidade
+    { wch: 15 }, // PVP 1
+    { wch: 15 }, // PVP 2
+    { wch: 15 }, // PVP 3
+    { wch: 20 }, // Alerta
   ];
-  XLSX.writeFile(wb, `Inventario_Visangol_${new Date().toISOString().split('T')[0]}.xlsx`);
+  ws['!cols'] = colWidths;
+
+  XLSX.writeFile(wb, `Inventario_${new Date().toISOString().split('T')[0]}.xlsx`);
 };
 
 export const parseExcelToProducts = async (file: File): Promise<Partial<Product>[]> => {
@@ -42,8 +46,10 @@ export const parseExcelToProducts = async (file: File): Promise<Partial<Product>
       try {
         const data = new Uint8Array(e.target?.result as ArrayBuffer);
         const workbook = XLSX.read(data, { type: 'array' });
-        const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+        const firstSheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[firstSheetName];
         const json = XLSX.utils.sheet_to_json(worksheet);
+
         const products = json.map((row: any) => ({
           id: row['Código (SKU)']?.toString() || '',
           name: row['Nome do Produto'] || '',
@@ -58,11 +64,13 @@ export const parseExcelToProducts = async (file: File): Promise<Partial<Product>
           },
           min_stock_alert: Number(row['Alerta Stock Mínimo']) || 5,
         }));
-        resolve(products.filter((p) => p.id && p.name));
+
+        resolve(products.filter((p) => p.id && p.name)); // Only return valid rows
       } catch (error) {
         reject(error);
       }
     };
+    reader.onerror = (error) => reject(error);
     reader.readAsArrayBuffer(file);
   });
 };

@@ -1,10 +1,10 @@
 import React, { useState, useRef } from 'react';
-import { Card, Button, Input } from '../components/UI';
-import { useInventory } from '../hooks/useInventory';
+import { Card, Button, Input } from '@/components/UI';
+import { useInventory } from '@/hooks/useInventory';
 import { Plus, Search, Edit2, Trash2, Filter, Package, Download, Upload } from 'lucide-react';
-import { Product } from '../types';
-import { cn } from '../utils/cn';
-import { exportInventoryToExcel, parseExcelToProducts } from '../utils/excel';
+import { Product } from '@/types';
+import { cn } from '@/utils/cn';
+import { exportInventoryToExcel, parseExcelToProducts } from '@/utils/excel';
 
 export const Inventory: React.FC = () => {
   const { products, loading, importProducts } = useInventory();
