@@ -1,30 +1,18 @@
-const CACHE_NAME = 'visangol-erp-v1';
-const urlsToCache = [
-  '/',
-  '/index.html',
-  '/src/main.tsx',
-  '/src/index.css',
-  '/manifest.json'
-];
+const CACHE_NAME = 'erp-cache-v1';
+const ASSETS_TO_CACHE = ['/', '/index.html', '/manifest.json', '/lg_vsngl_00.png'];
 
-self.addEventListener('install', event => {
+self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
-        return cache.addAll(urlsToCache);
-      })
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll(ASSETS_TO_CACHE);
+    }),
   );
 });
 
-self.addEventListener('fetch', event => {
+self.addEventListener('fetch', (event) => {
   event.respondWith(
-    caches.match(event.request)
-      .then(response => {
-        if (response) {
-          return response;
-        }
-        return fetch(event.request);
-      }
-    )
+    caches.match(event.request).then((response) => {
+      return response || fetch(event.request);
+    }),
   );
 });

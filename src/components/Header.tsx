@@ -18,7 +18,7 @@ export const Header: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const savedLogo = localStorage.getItem('visangol_logo');
+    const savedLogo = localStorage.getItem('erp_logo');
     if (savedLogo) {
       setCustomLogo(savedLogo);
     }
@@ -60,7 +60,7 @@ export const Header: React.FC = () => {
       reader.onloadend = () => {
         const base64String = reader.result as string;
         setCustomLogo(base64String);
-        localStorage.setItem('visangol_logo', base64String);
+        localStorage.setItem('erp_logo', base64String);
         updateFavicon(base64String);
       };
       reader.readAsDataURL(file);
@@ -70,7 +70,7 @@ export const Header: React.FC = () => {
   const handleRemoveLogo = (e: React.MouseEvent) => {
     e.stopPropagation();
     setCustomLogo(null);
-    localStorage.removeItem('visangol_logo');
+    localStorage.removeItem('erp_logo');
     updateFavicon(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
@@ -140,11 +140,12 @@ export const Header: React.FC = () => {
         {showInstallBtn && (
           <button
             onClick={handleInstallClick}
-            className="hidden lg:flex items-center gap-2 bg-orange-500 hover:bg-orange-400 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-lg shadow-orange-500/20 active:scale-95 animate-pulse"
-            title="Instalar ERP no Pop!_OS / Linux"
+            className="flex items-center gap-2 bg-orange-500 hover:bg-orange-400 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-lg shadow-orange-500/20 active:scale-95 animate-pulse"
+            title="Instalar App no seu dispositivo"
           >
             <Download className="w-4 h-4" />
-            <span>INSTALAR NO POP!_OS</span>
+            <span className="hidden sm:inline">INSTALAR APP</span>
+            <span className="sm:hidden">INSTALAR</span>
           </button>
         )}
       </div>
