@@ -101,7 +101,7 @@ export const Header: React.FC = () => {
           ) : (
             /* Logo padrão da pasta public */
             <div className="bg-white px-3 py-1.5 rounded-xl flex items-center justify-center h-10 shadow-sm cursor-pointer">
-              <img src="/logo.png" alt="Visangol Logo" className="h-full object-contain" />
+              <img src="/lg_vsngl_00.png" alt="Visangol Logo" className="h-full object-contain" />
             </div>
           )}
         </div>
